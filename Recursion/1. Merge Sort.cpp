@@ -41,7 +41,6 @@ temp[k++]= a[j++];
 for(i=low;i<=high;i++){
 a[i] = temp[i];
     }
-
 }
 
 void print(int *a,int n){

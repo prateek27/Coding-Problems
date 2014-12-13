@@ -3,7 +3,7 @@
 #include<cstdlib>
 using namespace std;
 // Given an array of m+n elements , second array has n elements.
-
+// THIS CODE IS BUGGY
 
 void print(int *a){
 for(int i=0;i<10;i++)
