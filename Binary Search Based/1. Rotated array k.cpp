@@ -17,10 +17,9 @@ while(low<=high){ //Converge to a single element
     }
     else{
     //Lies in the first half - Shrink from left
-        low=mid;
+        low=mid+1; //Note it should be mid+1 , mid gives infinite loop
     }
-
-    }
+}
 return -1;
 }
 int main(){

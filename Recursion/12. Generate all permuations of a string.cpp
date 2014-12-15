@@ -33,7 +33,7 @@ void printMap(){
 
 
 int main(){
-char s[]="abcc";
+char s[]="abcd";
 int n=strlen(s);
 printPermutation(s,0,n);
 printMap();

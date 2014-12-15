@@ -5,7 +5,7 @@ using namespace std;
 // Generates All possible strings using Phone Keypad (using 2,3,4) as input )
 //Author : Prateek Narang
 
-void generateStrings(vector<char> v[5],vector<string> res,char *temp,int *a,int subIndex,int index,int len){
+void generateStrings(vector<char> v[5],vector<string> &res,char *temp,int *a,int subIndex,int index,int len){
 
 
     if(index==len){
