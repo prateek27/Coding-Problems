@@ -85,7 +85,8 @@ bool areReverseUsingRecursion(struct node*head1,struct node**head2){
     { *head2 = (*head2)->next ; return true;}
 
     else{
-        return false ; }
+        return false ;
+        }
 
 }
 
