@@ -1,7 +1,7 @@
 #include<iostream>
 using namespace std;
 
-// BUGGY PROGRAM
+// WORKS FINE :D
 
 struct node{
 int data;
@@ -33,6 +33,7 @@ while(current!=NULL){
  cout<<current->data<<"->";
  current=current->next;
     }
+    cout<<endl;
 }
 //---------------------------Split in two halves
 void splitInTwoHalves(struct node*head,struct node**a,struct node**b){
@@ -45,8 +46,8 @@ if(head==NULL||head->next==NULL)
     }
 
 else{
-struct node*fast;
-struct node*slow;
+struct node*fast=head->next; //Making fast ahead by 1 will stop slow before the mid point.
+struct node*slow=head;
 
     while(fast!=NULL){
         fast=fast->next;
@@ -92,7 +93,7 @@ struct node*a;
 struct node*b;
 
 splitInTwoHalves(head,&a,&b);
-cout<<"SPLIT SUCCESS ";
+//cout<<"SPLIT SUCCESS ";
 MergeSort(&a);
 MergeSort(&b);
 
@@ -107,16 +108,14 @@ int main(){
 struct node*head1=NULL;
 pushFront(&head1,1);
 pushFront(&head1,2);
-pushFront(&head1,3);
 pushFront(&head1,4);
-struct node*head2=NULL;
-pushFront(&head2,5);
-pushFront(&head2,6);
-pushFront(&head2,8);
-//pushFront(&head2,9);
-//4321 + 9865 = 3296 (LSB on extreme left)
-//MergeSort(&head1);
+pushFront(&head1,3);
+pushFront(&head1,5);
+pushFront(&head1,7);
+pushFront(&head1,6);
 print(head1);
 MergeSort(&head1);
+cout<<"After Sorting :";
+print(head1);
 return 0;
 }
