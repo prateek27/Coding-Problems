@@ -1,4 +1,4 @@
-o#include<iostream>
+#include<iostream>
 #include<stack>
 #include<cstring>
 using namespace std;
@@ -27,46 +27,44 @@ void infixToPostFix(char *p){
 
     char postFix[100];
     stack<char> s;
-    int i=0;
-    int k=0;
-    int count = 0;
-        while(count<strlen(p)){
-           cout<<p[i];
-          count++;
-        if(p[i]>=48 && p[i]<=57)  // If Number , print it
-            postFix[k++] = p[i];
-
-        else if(p[i]=='('){
-            s.push('('); i++;
-        }
+    cout<<"Original : "<<p<<endl;
+    cout<<"Postfix  : ";
+    for(int i=0;i<strlen(p);i++){
+        //Left Bracket, Push it
+        if(p[i]=='(')
+            { s.push('('); }
+        //Right Bracket , Pop All
         else if(p[i]==')'){
-            while(!s.empty()&&s.top()!='('){
-                postFix[k++] = s.top();
-                s.pop();
-            }
-            if (!s.empty() && s.top()!= '(')
-                return ; // invalid expression
-            else
-                s.pop();
-
-
+            while(s.top()!='('&&!s.empty())
+             {   cout<<s.top();
+                s.pop();}
+         s.pop();
         }
+        //Number , Out as it
+       else if(p[i]>=48&&p[i]<=57)
+       { cout<<p[i] ; }
+        //Operand : Two cases arise
+       else{
+        //Higher Precedence Push It or Stack is Empty
+        if(s.empty()||prec(s.top())<prec(p[i]))
+                   {s.push(p[i]); }
         else{
-            while(!s.empty()&&prec[p[i]]<=prec[s.top()]){
-                postFix[k++]=s.top();
-                s.pop();
+            //Pop the characters until a current has precedence lower or equal to that of top
+        while(!s.empty()&&(prec(s.top())>=prec(p[i]))){
+        cout<<s.top();
+        s.pop();
+
+        }
+            s.push(p[i]);
             }
-         cout<<"Pushing"<<p[i];
-        s.push(p[i]);
-        i++;
         }
     }
+    //Last step empty the stack
     while(!s.empty()){
-    postFix[k++] = s.top();
-    s.pop();
+        cout<<s.top();
+        s.pop();
     }
-    postFix[k]='\0';
-//cout<<postFix<<endl;
+
 return ;
 }
 
@@ -79,7 +77,7 @@ cout<<endl;
 
 int main(){
 
-    char p[] = "(3+3)";
+    char p[] = "(3*5+8*(9-3)/5)";
 
     infixToPostFix(p);
     return 0;
