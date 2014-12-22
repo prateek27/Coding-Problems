@@ -32,6 +32,7 @@ while(current!=NULL){
  cout<<current->data<<"->";
  current=current->next;
     }
+cout<<endl;
 }
 //----------------------------------------Reverse
 void reverse(struct node**head){
@@ -117,10 +118,9 @@ pushFront(&head,2);
 pushFront(&head,3);
 pushFront(&head,4);
 pushFront(&head,6);
+print(head);
 moveEven(&head);
 print(head);
-
-
 }
 
 
