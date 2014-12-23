@@ -52,16 +52,49 @@ while(Q.currentSize){
     cout<<endl;
 }
 
-void Sort(Queue Q){
-int counter = currentSize;
+//------------------------------Sorting a Queue in Place involves two steps.
+// Finding a Min element
+// Reordering the queue
 
-while(currentSize){
-    int min = INT_MAX;
-    for(int i=0;i<currentSize;i++){
-        int front = q.front()
 
-        }
+/*This is just returns the min element without affecting queue state*/
+int findMin(Queue &Q,int k,int n){
+int Min = 1000000000;
+
+for(int i=0;i<n;i++){
+    int current = Q.arr[Q.front];
+
+    deQueue(Q);
+    if(current<Min && i<k)
+    { Min = current;}
+
+    enQueue(Q,current);
     }
+print(Q); //This Prints the Queue , print function takes Q by copy and doesnt modify actual Queue.
+return Min;
+}
+
+void reorder(Queue &Q,int Min,int n){
+    for(int i=0;i<n;i++){
+        int curr = Q.arr[Q.front];
+        deQueue(Q);
+        if(curr!=Min)
+            {  enQueue(Q,curr) ; }
+
+    }
+    enQueue(Q,Min);  //EnQueue the min element at last
+
+}
+
+void Sort(Queue &Q){
+int n = Q.currentSize;
+
+for(int i=0;i<n;i++){
+    int min_no = findMin(Q,n-i,n);
+    cout<<"Min : "<<min_no<<endl;
+    reorder(Q,min_no,n);
+    }
+
 }
 
 
@@ -69,10 +102,12 @@ int main(){
 Queue Q ;
 Q.front = 0;
 Q.rear = -1;
+enQueue(Q,9);
+enQueue(Q,6);
 enQueue(Q,1);
-enQueue(Q,2);
 enQueue(Q,3);
-deQueue(Q);
 enQueue(Q,5);
+Sort(Q);
 print(Q);
+cout<<"Finally Sorted... :D";
 }
