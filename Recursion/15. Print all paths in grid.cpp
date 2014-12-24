@@ -17,17 +17,17 @@ void printGrid(char grid[100][100],int n,int m){
 cout<<endl;
 }
 
-void findPaths(char grid[100][100],int n,int m,int right ,int down){
 
+void findPaths(char grid[100][100],int n,int m,int right ,int down){
 
     if(right==m&&down==n){
         printGrid(grid,n,m);
         return;
     }
+
     if((right==m&&down!=n)||(right!=m&&down==n))
     {
         grid[down][right]='o';
-
     }
 
     if(right<m){
