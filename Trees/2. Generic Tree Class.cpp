@@ -15,7 +15,9 @@ cout<<"Enter data for root node"<<endl;
 cin>>root->data;
 // Level Order Building of Tree , So Use A Queue
 queue<Node *> Q;
+
 Q.push(root);
+
 while(!Q.empty()){
     Node *temp = Q.front();
     Q.pop();
@@ -88,12 +90,15 @@ while(!q.empty()){
     q.pop();
 
     if(q.empty())
+        {
+        cout<<endl;
         break;
+        }
 
     else if(temp==NULL)
     {
         q.push(NULL);
-        cout<<endl<<;
+        cout<<endl;
     }
     else{
         cout<<temp->data<<", ";
@@ -107,6 +112,8 @@ while(!q.empty()){
 int main(){
 struct Node*root = buildTree();
 printLevelOrder(root);
-cout<<"Max"<<findMax(root)->data;
 
+cout<<"Max Element :"<<findMax(root)->data<<endl;
+cout<<"Depth : "<<findDepth(root);
+return 0;
 }

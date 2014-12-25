@@ -1,5 +1,6 @@
 #include<iostream>
 #include<queue>
+#include<cmath>
 using namespace std;
 
 struct node{
@@ -90,32 +91,91 @@ while(!q.empty()){
         }
     }
 }
-//--------------------------------------FInd Diameter
-int findDiameter(struct node*root,int &h){
-if(root==NULL){
-    h=0;
-    return 0;
+void printSpaces(int spaces){
+    for(int i=0;i<spaces;i++)
+        cout<<" ";
+return ;
 }
-int lh,rh;
-int ld = findDiameter(root->left,lh);
-int rd = findDiameter(root->right,rh);
-h = max(lh,rh)+1;
-return max(ld,max(rd,rh+lh+1));
+
+//--------------------------------------Pretty Printing of Binaray Tree
+int prettyPrint(struct node*root){
+
+    int spaces = 2*pow(2,getMaxHeight(root)-1);
+
+    queue<node*> q;
+
+    q.push(root);
+    q.push(NULL);
+
+    while(!q.empty()){
+
+
+    struct node* n = q.front();
+    q.pop();
+    if(q.empty()){
+    cout<<endl;
+    break;
+    }
+
+    if(n==NULL&&!q.empty()){
+        spaces = spaces/2;
+        q.push(NULL);
+        cout<<endl;
+    }
+
+    else{
+
+    if(n->data!=-1){
+    printSpaces(spaces);
+    cout<<n->data;
+    printSpaces(spaces);
+    }
+    /*else{
+    printSpaces(spaces);
+    cout<<" ";
+    printSpaces(spaces);
+    }*/
+    if(n->left!=NULL)
+        q.push(n->left);
+    else{
+        struct node*dummy = new struct node;
+        dummy->data = -1;
+        dummy->left = dummy->right = NULL;
+        q.push(dummy);
+        }
+    if(n->right!=NULL){
+        q.push(n->right);
+        }
+    else{
+        struct node*dummy = new struct node;
+        dummy->data = -1;
+        dummy->left = dummy->right = NULL;
+        q.push(dummy);
+            }
+        }
+    }
+}
+void printPreorder(struct node*root){
+
 }
 
 int main(){
 struct node* root = NULL;
 root = insert(root,5);
-root=insert(root,6);
-root=insert(root,7);
 root=insert(root,3);
 root=insert(root,2);
 root=insert(root,4);
+root=insert(root,7);
+root=insert(root,6);
 root=insert(root,8);
+root=insert(root,9);
 printLevelorder(root);
+
+prettyPrint(root);
 int h=0;
-cout<<"Diameter :"<<findDiameter(root,h);
+//cout<<"Diameter :"<<findDiameter(root,h);
 
 return 0;
 }
+
 

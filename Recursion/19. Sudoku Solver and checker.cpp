@@ -78,6 +78,7 @@ bool sudokuHelper(int **puzzle,bool **marked,int row,int col,int n){
             return false;
 
     }
+    //Else skip the current position as it is fixed already !
     else{
         return sudokuHelper(puzzle,marked,row,col+1,n);
     }

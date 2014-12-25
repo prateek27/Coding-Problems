@@ -1,13 +1,16 @@
 #include<iostream>
 using namespace std;
 
-//Buggy
-
 void printGrid(char grid[100][100],int n,int m){
-    static int gridNo = 0;
+    static int gridNo = -1;
 
     gridNo++;
-    cout<<"Grid :"<<gridNo<<endl;
+    if(gridNo==0){
+    cout<<"Original Grid :"<<endl;
+    }
+    else{
+    cout<<"Grid Formed :"<<gridNo<<endl;
+    }
     for(int i=0;i<n;i++){
         for(int j=0;j<m;j++){
             cout<<grid[i][j]<<" ";
@@ -16,37 +19,61 @@ void printGrid(char grid[100][100],int n,int m){
     }
 cout<<endl;
 }
+//-----------------------------------------Writing two functions
+//1. To Print a the first  Path found
+//2. To Print All Possible Paths
+
+bool findFirstPath(char grid[100][100],int n,int m,int x,int y){
 
 
-void findPaths(char grid[100][100],int n,int m,int right ,int down){
-
-    if(right==m&&down==n){
+    if(x==n-1&&y==m-1){
+        grid[x][y]='*';
         printGrid(grid,n,m);
-        return;
+        grid[x][y]='o';
+        return true;
     }
+    if(x<m&&y<n){
+        grid[x][y]='*';
 
-    if((right==m&&down!=n)||(right!=m&&down==n))
-    {
-        grid[down][right]='o';
+        //By Returning it terminates
+        if(findFirstPath(grid,n,m,x+1,y))
+            return true;
+
+        //Terminate if path is found
+        if(findFirstPath(grid,n,m,x,y+1))
+            return true;
+
+        //Else Backtrack
+        grid[x][y]='o';
+        return false;
     }
-
-    if(right<m){
-        grid[down][right]='*';
-        findPaths(grid,n,m,right+1,down);
-
-
-
-    }
-    if(down<n){
-        grid[down][right]='*';
-        findPaths(grid,n,m,right,down+1);
-
-
-    }
-    grid[down][right]='o';
-
+    //Not a valid position , return false
+    return false;
 }
+//------------------------------------------------------------------This function tries all possible paths ,dont use return statement
 
+
+bool findPaths(char grid[100][100],int n,int m,int x,int y){
+
+    if(x==n-1&&y==m-1){
+        grid[x][y]='*';
+        printGrid(grid,n,m);
+        grid[x][y]='o';
+        return true;
+    }
+    if(x<m&&y<n){
+        grid[x][y]='*';
+
+        findPaths(grid,n,m,x+1,y);
+
+        findPaths(grid,n,m,x,y+1);
+
+
+        grid[x][y]='o';
+        //return false;
+    }
+    return false;
+}
 
 void initGrid(char grid[][100],int n,int m){
 
@@ -67,7 +94,9 @@ cin>>n>>m;
 char grid[100][100];
 initGrid(grid,n,m);
 printGrid(grid,n,m);
-findPaths(grid,n,m,right,down);
+//Decomment to test this fucntion
+//findFirstPath(grid,n,m,0,0);
+findPaths(grid,n,m,0,0);
 
 return 0;
 }
