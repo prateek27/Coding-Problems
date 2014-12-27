@@ -1,8 +1,4 @@
 #include<iostream>
-using namespace std ;
-
-
-#include<iostream>
 #include<queue>
 using namespace std;
 
@@ -93,58 +89,55 @@ cout<<node->data<<" ";
 printInorder(node->right);
 
 }
-//--------------------------------------------------Print Vertical Order
-int getLeft(struct node*root){
-if(root==NULL)
-    return 0;
+//--------------------------------------------------Find Largest BST
+struct thing{
+struct node* largest;
+int count;
+int Min,Max;
+};
 
-int count=0;
-count += getLeft(root->left)+1;
-return count;
-}
-
-int getRight(struct node*root){
-if(root==NULL)
-    return 0;
-
-int count=0;
-count += getRight(root->right)+1;
-return count;
-}
-
-
-
-
-
-void printVerticalHelper(struct node*root,vector<vector<int> > &v,int colNo){
-
+struct thing findLargestBST(struct node*root){
+struct thing output;
 if(root==NULL){
-    return;
+    output.Min  = 10000;
+    output.Max =  -10000;
+    output.count = 0;
+    output.largest =NULL;
+    return output;
+}
+
+struct thing out1 = findLargestBST(root->left);
+struct thing out2 = findLargestBST(root->right);
+
+if( root->data > out1.Max && root->data < out2.Min && root->left == out1.largest && root->right == out2.largest )
+{
+    output.count = out1.count + out2.count+1;
+    cout<<output.count<<" ";
+    output.largest = root;
+    output.Min = out1.Min;
+    output.Max = out2.Max;
+    return output;
+}
+else{
+    if(out1.count > out2.count)
+    {
+    return out1;
     }
-v[colNo].push_back(root->data);
-printVerticalHelper(root->left,v,colNo-1);
-printVerticalHelper(root->right,v,colNo+1);
+    else
+    {
+    return out2;
+        }
 
-}
-
-void printVertical(struct node*root){
-
-int left = getLeft(root);
-int right = getRight(root);
-
-vector<vector<int> > v;
-v.reserve(left+right+1);
-printVerticalHelper(root,v,left);
-
-for(int i=0;i<=left+right;i++){
-    for(int j=0;j<v[i].size();j++){
-        cout<<v[i][j]<<" ";
     }
-    cout<<endl;
 }
 
-return;
-}
+
+
+
+
+
+
+
 
 
 int main(){
@@ -153,8 +146,8 @@ cout<<"Level Order :"<<endl;
 printLevelOrder(root);
 cout<<"Inorder : "<<endl;
 printInorder(root);
-cout<<endl<<"Vertical Order : "<<endl;
-printVertical(root);
+cout<<endl<<"Largest BST Starts from :";
+cout<<findLargestBST(root).largest->data<<endl;
 return 0;
 }
 

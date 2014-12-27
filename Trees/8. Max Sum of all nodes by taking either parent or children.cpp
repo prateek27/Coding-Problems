@@ -93,58 +93,16 @@ cout<<node->data<<" ";
 printInorder(node->right);
 
 }
-//--------------------------------------------------Print Vertical Order
-int getLeft(struct node*root){
-if(root==NULL)
-    return 0;
-
-int count=0;
-count += getLeft(root->left)+1;
-return count;
-}
-
-int getRight(struct node*root){
-if(root==NULL)
-    return 0;
-
-int count=0;
-count += getRight(root->right)+1;
-return count;
-}
+//--------------------------------------------------Find Max Sum
 
 
 
 
 
-void printVerticalHelper(struct node*root,vector<vector<int> > &v,int colNo){
 
-if(root==NULL){
-    return;
-    }
-v[colNo].push_back(root->data);
-printVerticalHelper(root->left,v,colNo-1);
-printVerticalHelper(root->right,v,colNo+1);
 
-}
 
-void printVertical(struct node*root){
 
-int left = getLeft(root);
-int right = getRight(root);
-
-vector<vector<int> > v;
-v.reserve(left+right+1);
-printVerticalHelper(root,v,left);
-
-for(int i=0;i<=left+right;i++){
-    for(int j=0;j<v[i].size();j++){
-        cout<<v[i][j]<<" ";
-    }
-    cout<<endl;
-}
-
-return;
-}
 
 
 int main(){

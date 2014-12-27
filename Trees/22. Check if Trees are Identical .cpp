@@ -1,8 +1,4 @@
 #include<iostream>
-using namespace std ;
-
-
-#include<iostream>
 #include<queue>
 using namespace std;
 
@@ -83,6 +79,20 @@ while(!q.empty()){
     }
 }
 }
+//---------------------------------------------------Are Identical
+bool areIdentical(struct node*root1,struct node*root2){
+
+if(root1==NULL&&root2==NULL)
+    return true;
+
+else if(root1!=NULL&&root2==NULL || root1==NULL&&root2!=NULL)
+    return false;
+
+else if(root1->data==root2->data&&areIdentical(root1->left,root2->left)&&areIdentical(root1->right,root2->right))
+    return true;
+
+return false;
+}
 
 //---------------------------------------------------Print Inorder
 void printInorder(struct node*node){
@@ -93,70 +103,19 @@ cout<<node->data<<" ";
 printInorder(node->right);
 
 }
-//--------------------------------------------------Print Vertical Order
-int getLeft(struct node*root){
-if(root==NULL)
-    return 0;
-
-int count=0;
-count += getLeft(root->left)+1;
-return count;
-}
-
-int getRight(struct node*root){
-if(root==NULL)
-    return 0;
-
-int count=0;
-count += getRight(root->right)+1;
-return count;
-}
-
-
-
-
-
-void printVerticalHelper(struct node*root,vector<vector<int> > &v,int colNo){
-
-if(root==NULL){
-    return;
-    }
-v[colNo].push_back(root->data);
-printVerticalHelper(root->left,v,colNo-1);
-printVerticalHelper(root->right,v,colNo+1);
-
-}
-
-void printVertical(struct node*root){
-
-int left = getLeft(root);
-int right = getRight(root);
-
-vector<vector<int> > v;
-v.reserve(left+right+1);
-printVerticalHelper(root,v,left);
-
-for(int i=0;i<=left+right;i++){
-    for(int j=0;j<v[i].size();j++){
-        cout<<v[i][j]<<" ";
-    }
-    cout<<endl;
-}
-
-return;
-}
 
 
 int main(){
-struct node*root = build();
+struct node*root1 = build();
+struct node*root2 = build();
 cout<<"Level Order :"<<endl;
-printLevelOrder(root);
-cout<<"Inorder : "<<endl;
-printInorder(root);
-cout<<endl<<"Vertical Order : "<<endl;
-printVertical(root);
-return 0;
+cout<<endl<<"Tree 1"<<endl;
+printLevelOrder(root1);
+cout<<endl<<"Tree 2"<<endl;
+printLevelOrder(root2);
+if(areIdentical(root1,root2))
+    cout<<"Identical Trees";
+else
+    cout<<"Not Identical Trees ";
+cout<<endl;
 }
-
-
-

@@ -8,33 +8,6 @@ Node **children;
 int childcount;
 };
 
-//------------------------------------------------------Build Tree using Level Order Traversal
-Node *buildTree(){
-Node *root = new Node;
-cout<<"Enter data for root node"<<endl;
-cin>>root->data;
-// Level Order Building of Tree , So Use A Queue
-queue<Node *> Q;
-
-Q.push(root);
-
-while(!Q.empty()){
-    Node *temp = Q.front();
-    Q.pop();
-    cout<<" Enter child count of node with data as "<<temp->data<<endl;
-    cin>>temp->childcount;
-    temp->children = new Node*[temp->childcount];
-
-    for(int i=0;i<temp->childcount;i++){
-    temp->children[i] = new Node;
-    cout<<"Enter data for child "<<i;
-    cin>>temp->children[i]->data;
-    Q.push(temp->children[i]);
-        }
-
-    }
-return root;
-}
 //-------------------------------------------------------Build Recursively
 void buildRecursively(struct Node**root){
 
@@ -63,13 +36,12 @@ void printTreePreorder(Node *root)
     if(root==NULL){
     return;
     }
-    cout<<root->data;
+    cout<<root->data<<" ";
     for(int i=0;i<root->childcount;i++){
         printTreePreorder(root->children[i]);
     }
-    cout<<endl;
 }
-//---------------------------------------------------Print Tree Post Order
+//--------------------------------------------------Print Tree PostOrder
 void printTreePostOrder(Node*root){
     if(root==NULL)
     {
@@ -110,6 +82,7 @@ depth = max(depth,findDepth(root->children[i]));
 }
 return depth+1;
 }
+
 //-----------------------------------------Print Level Order
 void printLevelOrder(Node*root){
 
@@ -142,13 +115,18 @@ while(!q.empty()){
 }
 //-----------------------------------------------Main
 int main(){
-struct Node*root = buildTree();
-/*Decomment to build Recursively */
-//struct Node*root = NULL;
-//buildRecursively(&root);
+struct Node*root = NULL;
+buildRecursively(&root);
+cout<<"Level Order :"<<endl;
 printLevelOrder(root);
-
+cout<<"Preorder "<<endl;
+printTreePreorder(root);
+cout<<endl;
+cout<<"Postorder "<<endl;
+printTreePostOrder(root);
+cout<<endl;
 cout<<"Max Element :"<<findMax(root)->data<<endl;
 cout<<"Depth : "<<findDepth(root);
 return 0;
 }
+
