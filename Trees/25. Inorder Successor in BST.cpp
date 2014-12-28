@@ -87,32 +87,52 @@ else
    root->right = insert(root->right,data);
 return root;
 }
-//---------------------------------------Print elements in the range
-void printRange(struct node*root,int k1,int k2){
-if(root==NULL)
-    return;
+//---------------------------------------------Next Bigger Node / Inorder Successor in BST
+struct node*findMin(struct node*root){
+    while(root->left!=NULL)
+        root = root->left;
+    return root;
+}
 
-printRange(root->left,k1,k2);
+//Iteratively ...
+struct node*nextBiggerNode(struct node*root,struct node*n){
 
+//Case 1.
+if(n->right!=NULL){
+    return findMin(n->right);
+}
+//Case 2.
+struct node*required = NULL;
+    while(root!=NULL){
+        if(n->data<root->data){
+            required = root;
+            root = root->left;
 
-if(root->data >= k1&&root->data<=k2)
+        }
+        else if(n->data>root->data){
+            root = root->right;
+        }
+        else{
+            return required;
+        }
 
-    cout<<root->data<<" ";
+    }
 
-if(root->data>=k2)
-    { return ;}
-
-printRange(root->right,k1,k2);
 }
 int main(){
-int a[8]={1,1,3,4,5,6,7,9};
+int a[8]={1,2,3,4,5,6,7,9};
 struct node*root = NULL;
 root = createBST(a,0,7);
 cout<<"Originial "<<endl;
+printLevelOrder(root);
 insert(root,8);
-printRange(root,2,8); .
+cout<<endl<<"After inserting 8 "<<endl;
+
+printLevelOrder(root);
+cout<<endl<<"Inorder : "<<endl;
+printPreorder(root);
+
+cout<<endl<<"Inorder sucessor of "<<root->left->left->data<<" is "<<nextBiggerNode(root,root->left->left)->data;
+
 return 0;
-
 }
-
-
