@@ -88,5 +88,4 @@ print(head);
 alternatingMerge(head);
 //print(getMidBreakMid(head));
 print(head);
-
 }
