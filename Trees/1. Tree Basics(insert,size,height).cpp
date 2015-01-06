@@ -79,7 +79,8 @@ while(!q.empty()){
     if(n->right!=NULL)
         q.push(n->right);
 
- }
+    }
+
 }
 
 int main(){

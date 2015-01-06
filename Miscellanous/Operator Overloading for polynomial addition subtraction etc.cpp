@@ -110,6 +110,7 @@ if(add1){
         p.head = n;
         count--;
     }
+
 }
 else{
 
@@ -155,4 +156,6 @@ p2.createPolynomial();
 p2.PrintPolynomial();
 
 p1.PrintPolynomial();
+
+return 0;
 }
