@@ -25,6 +25,16 @@ l. Find all connected Components
 class Graph{
 int **adj;
 int n;
+private:
+	void DFSHelper(int index,bool *visited){
+			cout<<index <<" ";
+			visited[index] = true;
+			for(int i =0; i<n ; i++) {
+				if(!visited[i] && adj[index][i] == 1) {
+					DFSHelper(i , visited);
+				}
+			}
+		}
 public:
 	Graph(int n){
 	this->n = n;
@@ -35,17 +45,17 @@ public:
 for(int i=0;i<n;i++){
 	for(int j=0;j<n;j++){
 	adj[i][j] = 0;
-}
+    }
 }
 
 }
 
 	void addEdge(int u,int v){
+adj[u][v] = 0;
 	adj[u][v] = 1;
 }
 
 void deleteEdge(int u,int v){
-adj[u][v] = 0;
 }
 
 void BFS(){
@@ -56,8 +66,12 @@ for(int i=0;i<n;i++)
 	visited[i] = false;
 
 queue<int> q;
-q.push(0);
-visited[0] = true;
+
+for(int i=0;i<n;i++){
+
+if(!visited[i]){
+q.push(i);
+visited[i] = true;
 
 while(!q.empty()){
 	int u = q.front();
@@ -71,18 +85,88 @@ while(!q.empty()){
         }
     }
   }
+}
+}
+
+void DFS(){
+bool visited[n] ;
+int i;
+for( i = 0; i<n;i++){
+	visited[i] = false;
+}
+    for(i=0;i<n;i++){
+	if(!visited[i])
+		DFSHelper(i,visited);
+        }
+    }
+
+void TopologicalSort(){
+int indegree[n];
+
+for(int i=0;i<n;i++){
+indegree[n] = 0;
+}
+int i,j;
+
+for(i=0;i<n;i++){
+	for(j=0;j<n;j++){
+		if(adj[i][j] ==1){
+			indegree[j]++ ;
+            }
+        }
+    }
+//So Let’s start with code
+queue<int> q;
+//Let’s find the nodes with 0 indegree first
+for(int i=0;i<n;i++){
+	if(indegree[i]==0)
+		q.push(i);
+
+}
+
+while(!q.empty()){
+	int u = q.front();
+	cout<<u<<" ";
+	q.pop();
+	for(int v=0;v<n;v++){
+	 	if(adj[u][v] ==1){
+		indegree[v]--;
+	if(indegree[v]==0)
+		q.push(v);
+            }
+        }
+    }
+}
+
+
+
 };
 
 int main(){
-Graph g(4);
+Graph g(5);
 g.addEdge(0,1);
 g.addEdge(0,2);
-g.addEdge(1,2);
+g.addEdge(2,1);
 g.addEdge(2,3);
 g.BFS();
+cout<<endl;
+g.DFS();
 
+
+Graph g2(6);
+    g2.addEdge(5, 2);
+    g2.addEdge(5, 0);
+    g2.addEdge(4, 0);
+    g2.addEdge(4, 1);
+    g2.addEdge(2, 3);
+    g2.addEdge(3, 1);
+    g2.TopologicalSort();
+// 5 4 2 3 1 0
 return 0;
 }
+
+
+
 
 
 
