@@ -5,11 +5,14 @@ using namespace std;
 
 void print(int *a,int len){
     int sum=0;
-    for(int i=0;i<len;i++){
+if(len==3){	    
+for(int i=0;i<len;i++){
         sum+=a[i];
         cout<<a[i]<<"+";
     }
     cout<<"="<<sum<<endl;
+}
+
 }
 //-----------------------------------------------------------------Recursive Subset Sum
 void subsetSum(int *a,int *temp,bool *flag,int array_index,int temp_index,int sum,int len){
