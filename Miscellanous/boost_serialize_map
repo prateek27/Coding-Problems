@@ -1,0 +1,140 @@
+#include <fstream>
+#include<istream>
+#include<iostream>
+#include<cstring>
+// include headers that implement a archive in simple text format
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include<unordered_map>
+
+#include<string>
+// include headers that implement a archive in simple text format
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include<unordered_map>
+
+
+
+struct node
+{
+	int value;
+	
+	node(){
+	}
+	node(int pat){
+		value = pat;
+	}
+
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & value;
+	}
+};
+
+typedef std::unordered_map<int, node> MyMap;
+void save(const MyMap &a, std::string name);
+void load(MyMap &retrieved_map,std::string name);
+
+class HashTable
+{	
+public:
+	MyMap map;
+	
+	HashTable(){};
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{	
+		ar & BOOST_SERIALIZATION_NVP(map);
+	}
+	
+	void update(int lba,int transfer_length, int value){
+		node*n = new node(value);
+		for (int i = 0; i < transfer_length; i++)
+		{	map[lba + i] = *n; }
+	}
+};
+
+class TableGroup{
+public:
+	int no_hashmaps;
+	int lbas_per_hashmap;
+	HashTable *table;
+	int current_loaded = -1;
+	
+	TableGroup(){};
+	
+	TableGroup(int size_in_gb, int size_per_hashmap){
+		no_hashmaps = size_in_gb / size_per_hashmap;
+		std::cout << "Aa gya constructor vich Table vala";
+		table = new HashTable[no_hashmaps];
+		lbas_per_hashmap = size_per_hashmap * 1024 * 1024 * 2;
+		std::cout << "Memory v allocate ho gyi";
+		
+		for (int i = 0; i < no_hashmaps; i++){
+			std::string name = "hash" + std::to_string(i);
+			save(table[i].map,name);
+		}
+	}
+
+	int findTableIndex(int lba){
+		return int(lba / lbas_per_hashmap);
+	}
+	void updateTable(int lba, int transfer_length,int value){
+		int index = findTableIndex(lba);
+
+		std::string name = "hash" + std::to_string(index);
+		if (current_loaded != index){
+
+			if (current_loaded != -1){
+				save(table[index].map, name);
+				//Delete this table from Memory	
+				MyMap :: iterator it;
+				for (it = table[index].map.begin(); it != table[index].map.end(); it++){
+					delete &(*it);
+				}
+			}
+		
+			load(table[index].map,name);
+			current_loaded = index;
+		//Later add delete older hash table and serialize it.
+		}
+		table[index].update(lba,transfer_length,value);
+		save(table[index].map,name);
+	}
+
+};
+
+
+void save(const MyMap &a,std::string name){
+	std::ofstream ofs(name);
+	{
+		boost::archive::text_oarchive oa(ofs);
+		// write class instance to archive
+		oa << a;
+		// archive and stream closed when destructors are called
+	}
+}
+
+void load(MyMap &retrieved_map,std::string name){
+	// create and open an archive for input
+	std::ifstream ifs(name);
+	boost::archive::text_iarchive ia(ifs);
+	// read class state from archive
+	ia >> retrieved_map;
+	// archive and stream closed when destructors are called
+}
+
+
+int main(){
+TableGroup T(100, 1);
+
+T.updateTable(100, 1024 * 1024 * 2,32);
+T.updateTable(1024 * 1024 * 3 + 5,1024*1024*1, 56);
+
+std::cout << "Done bhai";
+getchar();
+return 0;
+}
