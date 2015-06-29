@@ -3,6 +3,7 @@
 #include<iostream>
 #include<cstring>
 #include<time.h>
+#include <sys/stat.h>
 // include headers that implement a archive in simple text format
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -14,28 +15,28 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/unordered_map.hpp>
-#include<unordered_map>
+
 
 #define MAX 1024*1024
 
 struct node
 {
-	int value;
+	char pattern;
 	
 	node(){
 	}
-	node(int pat){
-		value = pat;
+	node(char pat){
+		pattern = pat;
 	}
 
 	node(node& obj){
-		this->value = obj.value;
+		this->pattern = obj.pattern;
 	}
 
 	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version)
 	{
-		ar & value;
+		ar & pattern;
 	}
 };
 
@@ -73,14 +74,20 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(map);
 	}
 	
-	void update(int lba,int transfer_length, int value){
-		node n(value);
+	void update(int lba,int transfer_length, char pattern){
+		node n(pattern);
 		for (int i = 0; i < transfer_length; i++)
 		{
-			map->insert({ lba + i, n });
+			//map->insert({ lba + i, n });
+			(*map)[lba + i] = n;
 		}
 	}
 };
+
+inline bool exists_test3(const std::string& name) {
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
+}
 
 class TableGroup{
 public:
@@ -98,10 +105,18 @@ public:
 		lbas_per_hashmap = size_per_hashmap * 1024 * 1024 ;
 	
 		
-		//for (int i = 0; i < no_hashmaps; i++){
-			//std::string name = "hash" + std::to_string(i);
-			//save(*(table[i].map),name);
-		//}
+		for (int i = 0; i < no_hashmaps; i++){
+			//DON'T SAVE/CREATE IF A FILE ALREADY EXISTS with same name
+			std::string name = "hash" + std::to_string(i);
+			
+			if (exists_test3(name) == false)
+			{
+				save(*(table[i].map), name);
+			}
+			else{
+				std::cout << "File exists : " << name;
+			}
+		}
 	}
 
 	int findTableIndex(int lba){
@@ -114,32 +129,37 @@ public:
 	void deleteTable(int index){
 			table[index].DeleteMap();	
 	}
-	void updateTable(int lba, int transfer_length,int value){
+	inline std::string getName(int index){
+		 std::string s = "hash" + std::to_string(index);
+		 return s;
+	}
+	void updateTable(int lba, int transfer_length,char pattern){
 		int index = findTableIndex(lba);
-		std::cout << "Index" << index <<std::endl;
+		//std::cout << "Index" << index <<std::endl;
 		int index_end = findTableIndex(lba + transfer_length);
-		std::cout <<"End index "<< index_end<<std::endl;
+		//std::cout <<"End index "<< index_end<<std::endl;
 			//LBA Range lies in the single hash table		
 			if (index == index_end){
 				
-					std::string name = "hash" + std::to_string(index);
+				
 					//Load the required table , and save the currently loaded.
 					if (current_loaded != index){
 
 						if (current_loaded != -1){
-							save(*table[current_loaded].map, name);
+							
+							save(*table[current_loaded].map, getName(current_loaded));
 							std::cout << "Saving to file ..." << current_loaded << std::endl;
 							//Delete this table from Memory	
 							deleteTable(current_loaded);
 							std::cout << "Deleting... " << current_loaded << std::endl;
 						}
 						std::cout << "Loading from file " << index << std::endl;
-						load(*table[index].map, name);
+						load(*table[index].map, getName(index));
 						current_loaded = index;
 					}
 					//Update the newly loaded table.
 					std::cout << "Updating map..." << index<<std::endl;
-					table[index].update(lba, transfer_length, value);
+					table[index].update(lba, transfer_length, pattern);
 					//Remove Save from here.It should be called only before deleting it.
 					//save(*table[index].map, name);
 					return;
@@ -149,15 +169,15 @@ public:
 						int end = getEndingLba(index);
 						std::cout << "END" << end<<std::endl;
 				if (current_loaded == index + 1){
-					std::cout << "updating for ranges" << index << std::endl;
-					updateTable(end + 1, transfer_length-end, value);
-					updateTable(lba,end - lba + 1, value);
+					std::cout<<"updating for ranges" << index << std::endl;
+					updateTable(end + 1, lba + transfer_length - end,pattern);
+					updateTable(lba, end - lba, pattern);
 				}
 				else{
-					updateTable(lba, end - lba + 1, value);
-					updateTable(end + 1, transfer_length - end,value);
-					std::cout << "First Range" << lba << "," << lba+end - lba + 1 << "\n";
-					std::cout << "Second Range " << end + 1 << " , " << lba + transfer_length;
+					updateTable(lba, end - lba , pattern);
+					updateTable(end + 1, lba+transfer_length - end,pattern);
+					//std::cout << "First Range" << lba << "," << lba+end-lba<<" "<<end-lba<< "\n";
+					//std::cout << "Second Range " << end + 1 << " , " << lba+transfer_length<<","<<lba+transfer_length-end;
 				}
 			}
 		}
@@ -196,8 +216,8 @@ T.updateTable(2*MAX+5,MAX/2, 73);
 T.updateTable(4 * MAX + 5, MAX / 2, 73);
 */
 
-T.updateTable(1024 * 1024 - 8000, 16000, 50);
-//T.updateTable(1024 * 1024 - 8000, 16000, 50);
+	T.updateTable(1024 * 1024 - 400, 1400, 'D');
+//T.updateTable(1024 * 1024 - 800, 16000, 50);
 //T.updateTable(1024*1024-8000,16000, 50);
 //T.updateTable(1024 * 1024,10000, 50);
 t = clock() - t;
@@ -208,3 +228,81 @@ std::cout << "It took " << float(t)/1000;
 getchar();
 return 0;
 }
+
+/*
+struct node
+{
+	int pattern;
+	char seqno;
+	
+	node(int pat){
+		pattern = pat;
+		seqno = 0;
+	}
+
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & pattern;
+	}
+};
+
+
+
+class HashTable
+{
+public:
+
+	std::unordered_map<int, node> myMap;
+	
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(hashMap);
+	}
+
+	void UpdateForWrite(int startLba, int transferLength, int pattern){
+
+		for (int i = 0; i<transferLength; i++){
+			int lba = startLba + i;
+			myMap[lba] = node(pattern);
+		}
+		return;
+	}
+
+	
+	void load(){
+		// create and open an archive for input
+		std::ifstream ifs("hashmap1");
+		boost::archive::text_iarchive ia(ifs);
+		// read class state from archive
+		ia >> (this);
+		// archive and stream closed when destructors are called
+	}
+
+};
+
+/*
+void save( std::unordered_map<int, node> &a){
+	std::ofstream ofs("hashmap1");
+	{
+		boost::archive::text_oarchive oa(ofs);
+		// write class instance to archive
+		oa << a;
+		// archive and stream closed when destructors are called
+	}
+}
+
+
+int main(){
+	//const MyMap a(b);
+	HashTable h1;
+	h1.UpdateForWrite(0, 100, 43);
+
+	//save(h1.myMap);
+
+	
+	getchar();
+	
+	return 0;
+}*/
