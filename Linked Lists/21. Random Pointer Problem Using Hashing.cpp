@@ -1,15 +1,4 @@
 #include<iostream>
-using namespace std;
-
-/*Problem : Given a linked list with random pointers . Make a copy of linked list */
-
-/*3 Approaches
-1. O(n^2) approach
-2. O(n) time , O(n) space - Map new and Old addresses
-3. O(n) time - 3 pass solution
-*/
-// Three pass solution
-#include<iostream>
 #include<unordered_map>
 using namespace std;
 
@@ -91,63 +80,12 @@ void cloneUsingHashing(LinkedList &L2){
             cloneCurrent->next = m[current->next];
             cloneCurrent->random = m[current->random];
 
-            // Mistake 2 : Forgot to move current to next positon.
+            // Mistake 2 : Forget to move current to next positon.
             current=current->next;
             }
 
         return;
     }
-
-    void cloneUsing3Pass(LinkedList &l){
-        // 1. Step1 Insert nodes in the old linked list 1->1->2->2->3 3 ....
-        //2. Fix random  pointers of new nodes
-        //3. Separate the two linked lists.
-
-        struct node*current = head;
-        //STEP 1 :
-        while(current!=NULL){
-            struct node*temp = current->next;
-            current->next = new node(current->data);
-            current->next->next= temp;
-            current = temp;
-            }
-            //print(head);
-
-        //STEP 2 :
-            //Condition for last node of original linked list
-            current = head;
-            cout<<current->data;
-            l.head = current->next;
-
-            struct node*temp = current->next;
-
-            while(current!=NULL){
-                if(current->random==NULL)
-                    temp->random = NULL;
-                else
-                    temp->random = current->random->next;
-
-                current= current->next->next;
-                temp = current->next;
-
-            }
-            /*
-            while(current->next->next!=NULL){
-                current->next->random = current->random->next;
-                current = current->next->next;
-                cout<<"here..";
-            }*/
-
-
-            //current->next = NULL;
-/*
-
-        //Step 3:
-            current = head;
-            l.head = current->next;
-*/
-        }
-
 };
 
 
@@ -166,26 +104,20 @@ L.head->random = L.head->next->next;
 L.head->next->random = L.head->next->next->next->next;
 
 L.print();
-/*
+
 cout<<L.head->random->data;
 cout<<L.head->next->random->data;
-*/
+
 LinkedList l2;
 cout<<"Random exp "<<endl;
 
-//L.cloneUsingHashing(l2);
-L.cloneUsing3Pass(l2);
-//l2.print();
-//cout<<l2.head->random->data;
-//cout<<l2.head->next->random->data;
-//L.print();
+L.cloneUsingHashing(l2);
+l2.print();
+cout<<l2.head->random->data;
+cout<<l2.head->next->random->data;
 
 
 return 0;
 }
-
-
-
-
 
 

@@ -19,6 +19,7 @@ void printSubsequences(char *s,char *temp,int start_index,int temp_index,int len
 
  temp[temp_index+1]= s[start_index];
  printSubsequences(s,temp,start_index+1,temp_index+1,len);
+
  temp[temp_index+1]='\0'; //Terminating the string is important.
  printSubsequences(s,temp,start_index+1,temp_index,len);
 }
