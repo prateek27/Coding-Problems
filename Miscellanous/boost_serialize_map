@@ -1,0 +1,391 @@
+#include <fstream>
+#include<istream>
+#include<iostream>
+#include<cstring>
+#include<time.h>
+#include <sys/stat.h>
+// include headers that implement a archive in simple text format
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include<unordered_map>
+#include<list>
+#include<string>
+#include<boost/unordered_map.hpp>
+// include headers that implement a archive in simple text format
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include<vector>
+
+#define MAX 1024*1024
+
+
+
+// Lba Range and Lba are used in returning outputs
+struct LbaRange{
+	int start;
+	int transferLength;
+	char pattern;
+	LbaRange();
+	LbaRange(int s, int len, char pat){
+		start = s;
+		transferLength = len;
+		pattern = pat;
+	};
+};
+
+struct Lba {
+	int lba;
+	char pattern;
+	Lba(int l, char pat){
+		lba = l;
+		pattern = pat;
+	}
+};
+
+// This is the actual node used for hashing
+struct node
+{
+	char pattern;
+	
+	node(){
+	}
+	node(char pat){
+		pattern = pat;
+	}
+
+	node(node& obj){
+		this->pattern = obj.pattern;
+	}
+
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & pattern;
+	}
+};
+
+typedef std::unordered_map<int, node> MyMap;
+void save(const MyMap &a, std::string name);
+void load(MyMap &retrieved_map,std::string name);
+bool compare(Lba one, Lba two){
+	return one.lba < two.lba;
+}
+
+class HashTable
+{	
+public:
+	MyMap *map;
+
+
+	HashTable(){
+		map = new MyMap();
+	};
+	HashTable(HashTable &h){
+		this->map = h.map;
+	}
+
+	void DeleteMap()
+	{
+		if (map)
+		{
+			delete map;
+		}
+		
+		map = NULL;
+	};
+	~HashTable(){ if (map) delete map; };
+	
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{	
+		ar & BOOST_SERIALIZATION_NVP(map);
+		//ar & map;
+	}
+	
+	void update(int lba,int transfer_length, char pattern){
+		node n(pattern);
+		for (int i = 0; i < transfer_length; i++)
+		{
+			//map->insert({ lba + i, n });
+			(*map)[lba + i] = n;
+		}
+	}
+	void erase(int lba, int transfer_length){
+		for (int i = 0; i < transfer_length; i++){
+			(*map).erase(lba + i);
+		}
+	}
+
+	inline bool exists(int lba){
+		return (*map).count(lba) > 0 ? true : false;
+	}
+	/*
+	inline MyMap::iterator getLba(int lba){
+		return (*map).find(lba);
+	}
+	std::list<LbaRange> getAllWrittenLbas(){
+		MyMap::iterator it;
+		v.clear();
+		for(it = (*map).begin(); it != (*map).end; it++){
+			v.push_back(it->first);
+		}
+		sort(v.begin(), v.end());
+		
+		for (int i = 0; i < v.end() - v.begin();i++){
+			std::cout << v[i] << " ";
+		}
+	}
+	*/
+
+};
+
+inline bool exists_test3(const std::string& name) {
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
+}
+
+class TableGroup{
+public:
+	int no_hashmaps;
+	int lbas_per_hashmap;
+	HashTable *table;
+	int current_loaded = -1;
+	
+	TableGroup(){};
+	
+	TableGroup(int size_in_gb, int size_per_hashmap){
+		no_hashmaps = size_in_gb / size_per_hashmap;
+	
+		table = new HashTable[no_hashmaps];
+		lbas_per_hashmap = size_per_hashmap * 1024 * 1024*2;
+	
+		
+		for (int i = 0; i < no_hashmaps; i++){
+			//DON'T SAVE/CREATE IF A FILE ALREADY EXISTS with same name
+			std::string name = "hash" + std::to_string(i);
+			
+			if (exists_test3(name) == false)
+			{
+				save(*(table[i].map), name);
+			}
+			else{
+				std::cout << "File exists : " << name;
+			}
+		}
+	}
+
+	int findTableIndex(int lba){
+		return int(lba / lbas_per_hashmap);
+	}
+	int getEndingLba(int bucket){
+		//+1 as index is 0 based.
+		return lbas_per_hashmap*(bucket+1)-1;
+	}
+	void deleteTable(int index){
+			table[index].DeleteMap();	
+	}
+	inline std::string getName(int index){
+		 std::string s = "hash" + std::to_string(index);
+		 return s;
+	}
+	void updateTable(int lba, int transfer_length,char pattern){
+		int index = findTableIndex(lba);
+		//std::cout << "Index" << index <<std::endl;
+		int index_end = findTableIndex(lba + transfer_length);
+		//std::cout <<"End index "<< index_end<<std::endl;
+			//LBA Range lies in the single hash table		
+			if (index == index_end){
+				
+				
+					//Load the required table , and save the currently loaded.
+					if (current_loaded != index){
+
+						if (current_loaded != -1){
+							
+							save(*table[current_loaded].map, getName(current_loaded));
+							std::cout << "Saving to file ..." << current_loaded << std::endl;
+							//Delete this table from Memory	
+							deleteTable(current_loaded);
+							std::cout << "Deleting... " << current_loaded << std::endl;
+						}
+						std::cout << "Loading from file " << index << std::endl;
+						load(*table[index].map, getName(index));
+						current_loaded = index;
+					}
+					//Update the newly loaded table.
+					std::cout << "Updating map..." << index<<std::endl;
+					table[index].update(lba, transfer_length, pattern);
+					//Remove Save from here.It should be called only before deleting it.
+					//save(*table[index].map, name);
+					return;
+				}
+			//LBA Range lies in two hashtables
+			else if (index_end == index + 1){
+						int end = getEndingLba(index);
+						std::cout << "END" << end<<std::endl;
+				if (current_loaded == index + 1){
+					std::cout<<"updating for ranges" << index << std::endl;
+					updateTable(end + 1, lba + transfer_length - end,pattern);
+					updateTable(lba, end - lba, pattern);
+				}
+				else{
+					updateTable(lba, end - lba , pattern);
+					updateTable(end + 1, lba+transfer_length - end,pattern);
+					//std::cout << "First Range" << lba << "," << lba+end-lba<<" "<<end-lba<< "\n";
+					//std::cout << "Second Range " << end + 1 << " , " << lba+transfer_length<<","<<lba+transfer_length-end;
+				}
+			}
+		}
+	void readAll(){
+		using namespace std;  {
+			int index;
+			cout << "Enter an index between 0 and " << no_hashmaps - 1;
+			cin >> index;
+			clock_t t2 = clock();
+			if (current_loaded != index){
+				
+				if (current_loaded!=-1){
+				deleteTable(current_loaded);
+				std::cout << "Deleting... " << current_loaded << std::endl;
+				}
+
+	
+			std::cout << "Loading from file " << index << std::endl;
+			load(*table[index].map, getName(index));
+			current_loaded = index;
+				}
+			t2 = clock() - t2;
+			cout << "Loading Done in " << t2 << " seconds"<<endl;
+
+
+			clock_t t3 = clock();
+			MyMap::iterator it;
+			
+			vector<Lba> *v = new vector <Lba> ;
+			
+			
+			for (it = (*table[index].map).begin(); it != (*table[index].map).end(); it++){		
+			(*v).push_back(Lba(it->first,(it->second).pattern));	
+			}
+			
+			t3 = clock() - t3;
+			cout << "Iteration & Pushing Done in " << t3 << " seconds"<<endl;
+
+
+			clock_t t4 = clock();
+			sort((*v).begin(), (*v).end(),compare);
+			for (int i = 0; i < 100; i++){
+				cout << (*v)[i].lba << " ,"<<(*v)[i].pattern << endl;
+			}
+			t4 = clock() - t4;
+			cout << "Sorting Done in " << t4 << " seconds" << endl;
+			
+			//Compress the LBA's into ranges.
+			vector<LbaRange> *range = new vector<LbaRange>;
+			for (int i = 0; i < (*v).size(); ){
+				int start = i;
+				char pattern = (*v)[i].pattern;
+				int transfer_length = 0;
+				
+				while ((*v)[i].pattern==pattern&&i>0&&((*v)[i].lba - (*v)[i-1].lba==1)){
+					i++;
+					transfer_length++;
+				};
+				(*range).push_back(LbaRange(start, transfer_length, pattern));
+			}
+			//Print the ranges.
+			for (int i = 0; i < (*range).size(); i++){
+				cout << "Range" << (*range)[i].start <<","<<(*range)[i].transferLength<<" ," << (*range)[i].pattern;
+			}
+		}
+	}
+
+	void loadTables(){
+
+		for (int index = 0; index < no_hashmaps; index++){
+			std::cout << " Loading..." << index;
+			load(*table[index].map, getName(index));
+	
+		}
+
+	}
+};
+
+
+void save(const MyMap &a,std::string name){
+	std::ofstream ofs(name);
+	{
+		boost::archive::text_oarchive oa(ofs);
+		// write class instance to archive
+		oa << a;
+		// archive and stream closed when destructors are called
+	}
+}
+
+void load(MyMap &retrieved_map,std::string name){
+	// create and open an archive for input
+	std::ifstream ifs(name);
+	boost::archive::text_iarchive ia(ifs);
+	// read class state from archive
+	ia >> retrieved_map;
+	// archive and stream closed when destructors are called
+}
+
+
+void test_one(TableGroup& T){
+	// 50 percent LBA's in 8 GB = 8 X MAX X MAX
+	// Table Group 128,8
+	int start = 0;
+
+	for (int i = 0; i < T.no_hashmaps; i++){
+		T.updateTable(start,8*MAX,i+1);
+		start += T.lbas_per_hashmap;
+	}
+
+}
+
+void test_two(TableGroup& T){
+	int start = 0;
+
+	for (int i = 0; i < T.no_hashmaps; i++){
+		T.updateTable(start, 4 * MAX,'A');
+		start += T.lbas_per_hashmap;
+	}
+
+
+
+}
+void reading_test(TableGroup &T){
+	T.readAll();
+}
+
+int main(){
+
+	std::clock_t t;
+	t = clock();
+	TableGroup T(128,4);
+	/*
+T.updateTable(0,MAX/2,50);
+T.updateTable(MAX+5,MAX/2, 62);
+T.updateTable(2*MAX+5,MAX/2, 73);
+T.updateTable(4 * MAX + 5, MAX / 2, 73);
+*/
+//T.updateTable(1024 * 1024 - 400, 1400, 'D');
+//T.updateTable(1024 * 1024 - 800, 16000, 50);
+//T.updateTable(1024*1024-8000,16000, 50);
+//T.updateTable(1024 * 1024,10000, 50);
+
+//test_two(T);
+reading_test(T);
+//T.loadTables();
+t = clock() - t;
+std::cout << "It took " << t << "seconds";
+//T.updateTable(1024*1024*1-3000,7000,32);
+//T.updateTable(1024 * 1024 * 3 + 5,200000,56);
+
+getchar();
+getchar();
+return 0;
+}

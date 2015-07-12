@@ -1,0 +1,152 @@
+#include<iostream>
+#include<list>
+#include<cctype>
+using namespace std;
+
+
+
+struct node{
+int dest,wt;
+    node(int dest,int wt){
+    this->dest = dest;
+    this->wt = wt;
+    }
+};
+
+struct edge{
+    int src,dest,wt;
+    edge(int s,int d,int w){
+        src=s;dest=d;wt=w;
+    }
+    edge(){};
+};
+
+struct subset{
+int rank;
+int parent;
+};
+
+// comparison, not case sensitive.
+bool myComparison(const edge& first, edge& second)
+{
+    return first.wt < second.wt;
+}
+
+int find(subset *sets,int i)
+{
+    if(i!=sets[i].parent)
+        sets[i].parent = find(sets,sets[i].parent);
+
+    return sets[i].parent;
+
+}
+void Union(subset *set,int x,int y){
+    int xroot = find(set,x);
+    int yroot = find(set,y);
+
+    if(set[xroot].rank > set[yroot].rank )
+            set[yroot].parent = xroot;
+    else if(set[xroot].rank < set[yroot].rank )
+            set[xroot].parent = yroot;
+    else{
+        set[yroot].parent = xroot;
+        set[xroot].rank++;
+    }
+
+}
+
+
+class Graph{
+public:
+
+int n;
+list<node> *l;
+list<edge> edgeList;
+
+public:
+
+    Graph(int n);
+    void addEdge(int s,int d,int w);
+    void addEdgeWeight(int s,int d,int w);
+    void sortEdgeList();
+    void Kruksal();
+    void print(edge*result);
+};
+
+Graph::Graph(int n){
+    this->n = n;
+    l = new list<node>[n];
+}
+
+void Graph::addEdge(int s,int d,int w)
+{l[s].push_back(node(d,w));}
+
+void Graph::addEdgeWeight(int s,int d,int w)
+{ edgeList.push_back(edge(s,d,w));}
+
+void Graph::sortEdgeList(){
+edgeList.sort(myComparison);
+};
+
+void Graph::Kruksal(){
+this->sortEdgeList();
+edge result[n];
+subset sets[n];
+    for(int i=0;i<n;i++){
+        sets[i].parent = i;
+        sets[i].rank = 0;
+    }
+
+int edges=0 ;
+int i=0;  //Edges to pick n-1
+while(edges<n-1)
+{
+edge current_edge = edgeList.front();
+edgeList.pop_front();
+int x = find(sets,current_edge.src);
+int y = find(sets,current_edge.dest);
+
+    if(x!=y){
+        result[edges++] = current_edge;
+        Union(sets,x,y);
+
+    }
+    else{
+        //Do nothing.
+        }
+
+    }
+    print(result);
+}
+void Graph::print(edge result[]){
+for(int i=0;i<n-1;i++){
+    cout<<result[i].src<<" ,"<<result[i].dest<<" ,"<<result[i].wt<<" "<<endl;
+    }
+
+}
+
+int main(){
+Graph g4(5);
+g4.addEdgeWeight(0,1,2);
+g4.addEdgeWeight(1,0,2);
+g4.addEdgeWeight(1,2,3);
+g4.addEdgeWeight(2,1,3);
+
+g4.addEdgeWeight(2,4,7);
+g4.addEdgeWeight(4,2,7);
+g4.addEdgeWeight(1,4,5);
+g4.addEdgeWeight(4,1,5);
+
+g4.addEdgeWeight(3,4,9);
+g4.addEdgeWeight(4,3,9);
+g4.addEdgeWeight(1,3,8);
+g4.addEdgeWeight(3,1,8);
+
+
+g4.addEdgeWeight(0,3,6);
+g4.addEdgeWeight(3,0,6);
+
+g4.Kruksal();
+
+return 0;
+}
