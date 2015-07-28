@@ -3,7 +3,7 @@
 using namespace std;
 
 queue<int> q;
-
+//This function just returns the minimum in the window 0 to k
 int findMinimum(int k,int n)
 { int min = 100000;
 for(int i=0;i<n;i++){
@@ -16,7 +16,7 @@ for(int i=0;i<n;i++){
     }
     return min;
 }
-
+//This places the minimum value at correct position
 void reorder(int min,int n){
 for(int i=0;i<n;i++){
     int current = q.front();
