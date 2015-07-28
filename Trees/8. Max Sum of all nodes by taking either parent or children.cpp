@@ -96,7 +96,26 @@ printInorder(node->right);
 //--------------------------------------------------Find Max Sum
 
 
+struct output{
+int inc;
+int exc;
+};
 
+output findMaxSumChildOrParent( struct node*root ){
+output ans ;
+if(root ==NULL)
+{
+    ans.inc =0;
+    ans.exc =0;
+    return ans;
+}
+output left = findMaxSumChildOrParent(root->left);
+output right = findMaxSumChildOrParent(root->right);
+
+ans.inc = root->data + left.exc + right.exc ;
+ans.exc = max(left.exc,left.inc) + max(right.exc,right.inc);
+return ans;
+}
 
 
 
@@ -108,13 +127,10 @@ printInorder(node->right);
 int main(){
 struct node*root = build();
 cout<<"Level Order :"<<endl;
-printLevelOrder(root);
+//printLevelOrder(root);
 cout<<"Inorder : "<<endl;
-printInorder(root);
-cout<<endl<<"Vertical Order : "<<endl;
-printVertical(root);
+//printInorder(root);
+output ans = findMaxSumChildOrParent(root);
+cout<<endl<<"Max Possible Sum is  : "<<max(ans.inc,ans.exc);
 return 0;
 }
-
-
-
