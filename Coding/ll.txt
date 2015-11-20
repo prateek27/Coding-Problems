@@ -1,0 +1,30 @@
+#define gc getchar_unlocked
+int fcin(){register int c = gc();int x = 0;for(;(c<48 || c>57);c = gc());for(;c>47 && c<58;c = gc()) {x = (x<<1) + (x<<3) + c - 48;}return x;}
+fast input
+
+nline void fastwrite(llint a){
+register char c;
+char snum[20];
+int i=0;
+do{
+snum[i++]=a%10+48;
+a=a/10;
+}while(a!=0);
+i=i-1;
+while(i>=0)
+putchar_unlocked(snum[i--]);
+putchar_unlocked('\n');
+}
+fast output
+
+
+##########
+     #       #   ##
+#  ##    #    ##
+#  ##             #
+#                   #
+#######     #
+#         ##      #
+#                   #
+########    
+##########
