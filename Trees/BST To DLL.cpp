@@ -1,7 +1,9 @@
 #include<iostream>
 using namespace std ;
 
-
+/* Author Prateek Narang 
+Self Approach , Work GOOD ! :D
+*/
 #include<iostream>
 #include<queue>
 using namespace std;
@@ -97,40 +99,74 @@ printInorder(node->right);
 
 
 struct output{
-int inc;
-int exc;
+    node*head;
+    node*tail;
 };
 
-output findMaxSumChildOrParent( struct node*root ){
-output ans ;
-if(root ==NULL)
-{
-    ans.inc =0;
-    ans.exc =0;
+
+output BSTtoDLL(struct node*&root){
+output ans;
+
+if(root->left==NULL&&root->right==NULL){
+            ans.head = root;
+            ans.tail = root;
+            return ans;
+}
+if(root->left ==NULL && root->right!=NULL){
+    output right = BSTtoDLL(root->right);
+    ans.head = root ;
+    root->right = right.head;
+    right.head->left = root;
+    ans.tail = right.tail;
     return ans;
 }
-output left = findMaxSumChildOrParent(root->left);
-output right = findMaxSumChildOrParent(root->right);
+if(root->left!=NULL && root->right ==NULL){
+    output left = BSTtoDLL(root->left);
+    left.tail->right = root;
+    root->left = left.tail;
+    ans.tail = root;
+    ans.head = left.head;
+    return ans;
+}
+else{
+    output left = BSTtoDLL(root->left);
+    output right = BSTtoDLL(root->right);
 
-ans.inc = root->data + left.exc + right.exc ;
-ans.exc = max(left.exc,left.inc) + max(right.exc,right.inc);
-return ans;
+    root->right = right.head;
+    right.head->left = root;
+
+    root->left = left.tail;
+    left.tail->right = root;
+
+    ans.head = left.head;
+    ans.tail = right.tail;
+    return ans;
+    }
 }
 
+void print(struct node*root){
+struct node*temp = root;
 
-
-
-
-
+while(temp->left){
+    //cout<<temp->data<<endl;
+    temp = temp->left;
+}
+while(temp){
+    cout<<temp->data<<" ";
+     temp = temp->right;
+    }
+return;
+}
 
 
 int main(){
 struct node*root = build();
 cout<<"Level Order :"<<endl;
 //printLevelOrder(root);
-cout<<"Inorder : "<<endl;
 //printInorder(root);
-output ans = findMaxSumChildOrParent(root);
-cout<<endl<<"Max Possible Sum is  : "<<max(ans.inc,ans.exc);
+
+BSTtoDLL(root);
+print(root);
 return 0;
 }
+
