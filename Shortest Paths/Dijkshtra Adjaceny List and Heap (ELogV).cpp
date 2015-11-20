@@ -36,8 +36,37 @@ adj[dest].push_back(n1);
 }
 
 
+/*
+void disjkstra2(int s,int V=9){
+bool visited[100]={0};
+memset(dist,INT_MAX,sizeof dist);
 
+priority_queue<int,vector<int>,myComparison> q;
 
+dist[s]=0;
+visited[s]=true;
+for(int i=0;i<V;i++){
+    q.push(i);
+}
+
+while(!q.empty()){
+    int cur = q.top();
+    q.pop();
+
+    visited[cur]=true;
+
+    for(int j=0;j<adj[cur].size();j++){
+       int des = adj[cur][j].dest;
+       int wt = adj[cur][j].wt;
+
+       if(dist[cur]+wt < dist[des]&&visited[des]==false){
+        dist[des] = dist[cur]+wt;
+       }
+    }
+}
+
+}
+*/
 
 
 void dijkstra(int s){
@@ -78,29 +107,55 @@ while(!q.empty()){
 
 }
 
+}
+/*
+void test_func(){
+int v1=15;
+int v2 = 16;
 
+
+priority_queue<int,vector<int>,myComparison> q;
+dist[15] = 10;
+dist[16] = 16;
+
+
+q.push(v1);
+q.push(v2);
+
+dist[15]=100;
+
+cout<<"In test function ";
+while(!q.empty()){
+        cout<<q.top()<<endl;
+        q.pop();
+
+    }
 
 }
-
+*/
 int main(){
 int V = 9;
-    addEdge( 0, 1, 4);
+    addEdge(0, 1, 4);
     addEdge(0, 7, 8);
-    addEdge( 1, 2, 8);
-    addEdge( 1, 7, 11);
-    addEdge( 2, 3, 7);
-    addEdge( 2, 8, 2);
-    addEdge( 2, 5, 4);
+    addEdge(1, 2, 8);
+    addEdge(1, 7, 11);
+    addEdge(2, 3, 7);
+    addEdge(2, 8, 2);
+    addEdge(2, 5, 4);
     addEdge(3, 4, 9);
-    addEdge( 3, 5, 14);
-    addEdge( 4, 5, 10);
-    addEdge( 5, 6, 2);
-    addEdge( 6, 7, 1);
-    addEdge( 6, 8, 6);
-    addEdge( 7, 8, 7);
-    dijkstra(0);
+    addEdge(3, 5, 14);
+    addEdge(4, 5, 10);
+    addEdge(5, 6, 2);
+    addEdge(6, 7, 1);
+    addEdge(6, 8, 6);
+    addEdge(7, 8, 7);
+    //dijkstra(0);
+
 int i;
 for(i=0;i<V;i++)
     cout<<i<<" "<<dist[i]<<endl;
+
+test_func();
+
 return 0;
 }

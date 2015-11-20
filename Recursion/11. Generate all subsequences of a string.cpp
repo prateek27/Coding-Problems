@@ -26,7 +26,7 @@ void printSubsequences(char *s,char *temp,int start_index,int temp_index,int len
 
 
 int main(){
-char s[20]="hello";
+char s[20]="abc";
 char temp[20];
 int len = strlen(s);
 printSubsequences(s,temp,0,-1,len);

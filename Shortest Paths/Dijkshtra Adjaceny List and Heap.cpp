@@ -4,6 +4,7 @@
 #include<queue>
 #include<cstring>
 #define INT_MAX 1000000000
+#include<functional>
 using namespace std;
 
 

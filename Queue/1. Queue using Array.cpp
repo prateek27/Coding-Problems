@@ -31,10 +31,13 @@ void deQueue(Queue &Q){
         return ;
     }
     Q.front++;
+
     if(Q.front==100){
      Q.front = 0;
     }
+
     Q.currentSize--;
+
     if(Q.currentSize==0){
         Q.front = 0;
         Q.rear = -1;
