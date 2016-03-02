@@ -6,6 +6,7 @@ int getLowerBound(int *a,int low,int high,int key){
 int ans=-1;
 while(low<=high){
     int mid = (low+high)/2;
+
     if(a[mid]>key){
         high = mid-1;
 
