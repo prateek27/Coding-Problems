@@ -1,0 +1,8 @@
+#include<bits/stdc++.h>
+using namespoace std;
+int main(){
+  long long int n = 7896;
+  if(ceil(log(n)/log(34))==floor(log(n)/log(34))){cout<<"Yes its a power of 34"<<endl;}
+  else{cout<<"No its not a power of 34"<<endl;}
+  return 0;
+}
