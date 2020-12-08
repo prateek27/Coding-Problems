@@ -1,0 +1,14 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main(){
+  string h;
+  getline(cin,h);
+  for(int i=h.length()-1;i>=0;i--){
+      if(isalpha(h[i])){
+          char c =tolower(h[i]);
+          if(c=='a'||c=='e'||c=='i'||c=='o'||c=='u'||c=='y'){cout<<"YES"<<endl;return 0;}
+          else{cout<<"NO"<<endl;return 0;}
+      }
+  }
+  return 0;
+}
